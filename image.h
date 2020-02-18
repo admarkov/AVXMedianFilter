@@ -9,6 +9,8 @@
 #include <iostream>
 #include <functional>
 
+#include "filter.h"
+
 using RenderedImagePtr = QSharedPointer<QLabel>;
 
 class Image
@@ -61,10 +63,22 @@ public:
         return label;
     }
 
+    void ApplyFilter(Filter* filter) {
+        for (int clr = 0; clr < 3; clr++) {
+            for (int i = 0; i <= height - filter->getKernelSize(); i++) {
+                for (int j = 0; j <= width - filter->getKernelSize(); j++) {
+                    pixmap[clr][i * width + j] = filter->Apply(&pixmap[clr][i * width + j], width);
+                }
+            }
+        }
+    }
+
 private:
     uchar* pixmap[3];
     int width;
     int height;
 };
+
+using ImagePtr = QSharedPointer<Image>;
 
 #endif // IMAGE_H

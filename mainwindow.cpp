@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "image.h"
+#include "cppmedian.h"
 
 #include <QFileDialog>
 #include <QFile>
@@ -29,12 +30,23 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu->addAction(fileMenu_open.get());
     connect(fileMenu_open.get(), SIGNAL(triggered(bool)), this, SLOT(openPicture()));
 
+    fileMenu_filter.reset(new QAction(this));
+    fileMenu_filter->setText("Применить фильтр");
+    fileMenu->addAction(fileMenu_filter.get());
+    connect(fileMenu_filter.get(), SIGNAL(triggered(bool)), this, SLOT(filterPicture()));
+
 }
 
 void MainWindow::openPicture() {
     QString path = QFileDialog::getOpenFileName(0, "Открыть изображение", "", "*.bmp");
-    Image img(path);
-    img1 = img.render(10, 40, this);
+    img.reset(new Image(path));
+    img1 = img->render(10, 40, this);
+}
+
+void MainWindow::filterPicture() {
+    CppMedianFilter filter;
+    img->ApplyFilter(&filter);
+    img2 = img->render(710, 40, this);
 }
 
 MainWindow::~MainWindow()

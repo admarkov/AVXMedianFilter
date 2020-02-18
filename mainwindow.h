@@ -22,11 +22,15 @@ public:
     QSharedPointer<QMenuBar>    menuBar;
     QSharedPointer<QMenu>       fileMenu;
     QSharedPointer<QAction>     fileMenu_open;
+    QSharedPointer<QAction>     fileMenu_filter;
 
+    ImagePtr         img;
     RenderedImagePtr img1;
+    RenderedImagePtr img2;
 
 public slots:
     void openPicture();
+    void filterPicture();
 
 private:
     Ui::MainWindow *ui;
