@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QPointer>
 
+#include "image.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -20,6 +22,8 @@ public:
     QSharedPointer<QMenuBar>    menuBar;
     QSharedPointer<QMenu>       fileMenu;
     QSharedPointer<QAction>     fileMenu_open;
+
+    RenderedImagePtr img1;
 
 public slots:
     void openPicture();

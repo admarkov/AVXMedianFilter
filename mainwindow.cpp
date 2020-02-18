@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "image.h"
+
 #include <QFileDialog>
-#include <QLabel>
+#include <QFile>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,10 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::openPicture() {
     QString path = QFileDialog::getOpenFileName(0, "Открыть изображение", "", "*.bmp");
-    QLabel* label = new QLabel(this);
-    label->setGeometry(100,100,600,600);
-    label->show();
-    label->setText(path);
+    Image img(path);
+    img1 = img.render(10, 40, this);
 }
 
 MainWindow::~MainWindow()
