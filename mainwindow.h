@@ -27,7 +27,8 @@ public:
     QSharedPointer<QMenuBar>    menuBar;
     QSharedPointer<QMenu>       fileMenu;
     QSharedPointer<QAction>     fileMenu_open;
-    QSharedPointer<QAction>     fileMenu_filter;
+    QSharedPointer<QAction>     fileMenu_filtercpp;
+    QSharedPointer<QAction>     fileMenu_filterasm;
 
     QSharedPointer<QLabel>      ticksLabel;
 
@@ -37,7 +38,8 @@ public:
 
 public slots:
     void openPicture();
-    void filterPicture();
+    void filterPictureCpp();
+    void filterPictureAsm();
 
 private:
     Ui::MainWindow *ui;

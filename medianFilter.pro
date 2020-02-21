@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    avxmedian.cpp \
     cppmedian.cpp \
     filter.cpp \
     image.cpp \
@@ -23,9 +24,11 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    avxmedian.h \
     cppmedian.h \
     filter.h \
     image.h \
+    kernel.h \
     mainwindow.h
 
 FORMS += \
@@ -36,4 +39,14 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES +=
+QMAKE_EXTRA_COMPILERS  += nasm
+
+NASM_SOURCES += kernel.asm
+
+nasm.name = nasm ${QMAKE_FILE_IN}
+nasm.input = NASM_SOURCES
+nasm.variable_out = OBJECTS
+nasm.commands = nasm -f win64 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+nasm.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+nasm.CONFIG += target_predeps
+

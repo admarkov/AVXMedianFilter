@@ -3,6 +3,7 @@
 
 #include "image.h"
 #include "cppmedian.h"
+#include "avxmedian.h"
 
 #include <QFileDialog>
 #include <QFile>
@@ -31,10 +32,17 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu->addAction(fileMenu_open.get());
     connect(fileMenu_open.get(), SIGNAL(triggered(bool)), this, SLOT(openPicture()));
 
-    fileMenu_filter.reset(new QAction(this));
-    fileMenu_filter->setText("Применить фильтр");
-    fileMenu->addAction(fileMenu_filter.get());
-    connect(fileMenu_filter.get(), SIGNAL(triggered(bool)), this, SLOT(filterPicture()));
+    fileMenu_filtercpp.reset(new QAction(this));
+    fileMenu_filtercpp->setText("Применить фильтр на c++");
+    fileMenu->addAction(fileMenu_filtercpp.get());
+    fileMenu_filtercpp->setDisabled(true);
+    connect(fileMenu_filtercpp.get(), SIGNAL(triggered(bool)), this, SLOT(filterPictureCpp()));
+
+    fileMenu_filterasm.reset(new QAction(this));
+    fileMenu_filterasm->setText("Применить фильтр на nasm");
+    fileMenu->addAction(fileMenu_filterasm.get());
+    fileMenu_filterasm->setDisabled(true);
+    connect(fileMenu_filterasm.get(), SIGNAL(triggered(bool)), this, SLOT(filterPictureAsm()));
 }
 
 void MainWindow::showTicks(uint32_t ticks) {
@@ -51,14 +59,22 @@ void MainWindow::openPicture() {
     img.reset(new Image(path));
     img1 = img->render(10, 40, this);
     img2.reset(nullptr);
+    fileMenu_filtercpp->setEnabled(true);
+    fileMenu_filterasm->setEnabled(true);
 }
 
-void MainWindow::filterPicture() {
+void MainWindow::filterPictureCpp() {
     CppMedianFilter filter;
     auto ticks = img->ApplyFilter(&filter);
     img2 = img->render(710, 40, this);
     showTicks(ticks);
+}
 
+void MainWindow::filterPictureAsm() {
+    AvxMedianFilter filter;
+    auto ticks = img->ApplyFilter(&filter);
+    img2 = img->render(710, 40, this);
+    showTicks(ticks);
 }
 
 MainWindow::~MainWindow()
