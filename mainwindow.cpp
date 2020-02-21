@@ -9,11 +9,12 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , h(800)
+    , w(1400)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    int h = 800, w = 1400;
     setFixedSize(w, h);
 
     setWindowTitle("Медианный фильтр");
@@ -34,19 +35,30 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu_filter->setText("Применить фильтр");
     fileMenu->addAction(fileMenu_filter.get());
     connect(fileMenu_filter.get(), SIGNAL(triggered(bool)), this, SLOT(filterPicture()));
+}
 
+void MainWindow::showTicks(uint32_t ticks) {
+    ticksLabel.reset(new QLabel(this));
+    ticksLabel->setGeometry(10, h - 40, w, 30);
+    ticksLabel->setText(QString::number(ticks) + " ticks");
+    ticksLabel->setFont(QFont("Verdana", 18));
+    ticksLabel->setAlignment(Qt::AlignCenter);
+    ticksLabel->show();
 }
 
 void MainWindow::openPicture() {
     QString path = QFileDialog::getOpenFileName(0, "Открыть изображение", "", "*.bmp");
     img.reset(new Image(path));
     img1 = img->render(10, 40, this);
+    img2.reset(nullptr);
 }
 
 void MainWindow::filterPicture() {
     CppMedianFilter filter;
-    img->ApplyFilter(&filter);
+    auto ticks = img->ApplyFilter(&filter);
     img2 = img->render(710, 40, this);
+    showTicks(ticks);
+
 }
 
 MainWindow::~MainWindow()

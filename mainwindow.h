@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QLabel>
 
 #include "image.h"
 
@@ -18,11 +19,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void showTicks(uint32_t ticks);
+
 public:
+    int h, w;
+
     QSharedPointer<QMenuBar>    menuBar;
     QSharedPointer<QMenu>       fileMenu;
     QSharedPointer<QAction>     fileMenu_open;
     QSharedPointer<QAction>     fileMenu_filter;
+
+    QSharedPointer<QLabel>      ticksLabel;
 
     ImagePtr         img;
     RenderedImagePtr img1;

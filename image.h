@@ -63,7 +63,8 @@ public:
         return label;
     }
 
-    void ApplyFilter(Filter* filter) {
+    uint32_t ApplyFilter(Filter* filter) {
+        auto start = clock();
         for (int clr = 0; clr < 3; clr++) {
             for (int i = 0; i <= height - filter->getKernelSize(); i++) {
                 for (int j = 0; j <= width - filter->getKernelSize(); j++) {
@@ -71,6 +72,7 @@ public:
                 }
             }
         }
+        return clock() - start;
     }
 
 private:
