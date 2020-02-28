@@ -6,6 +6,7 @@
 #include <QPointer>
 #include <QImage>
 
+#include <algorithm>
 #include <iostream>
 #include <functional>
 
@@ -66,11 +67,14 @@ public:
     uint32_t ApplyFilter(Filter* filter) {
         auto start = clock();
         for (int clr = 0; clr < 3; clr++) {
+            uchar* sourcePixmap = new uchar[getSize()];
+            std::copy(pixmap[clr], pixmap[clr] + getSize(), sourcePixmap);
             for (int i = 0; i <= height - filter->getKernelSize(); i++) {
                 for (int j = 0; j <= width - filter->getKernelSize(); j++) {
-                    pixmap[clr][i * width + j] = filter->Apply(&pixmap[clr][i * width + j], width);
+                    pixmap[clr][i * width + j] = filter->Apply(&sourcePixmap[i * width + j], width);
                 }
             }
+            delete[] sourcePixmap;
         }
         return clock() - start;
     }
