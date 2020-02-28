@@ -1,32 +1,37 @@
 section .text
 global _kernel
 
+    ; _update_median function updates the estimated median value as stated below:
     ;  Statement:
-    ; Median value of 25 elements is the minimal value such that
-    ; there is at most 12 bigger elements
+    ; Median value of 25 elements is the maximal value such that
+    ; there is at least 13 greater or equal elements
     ;  Input:
-    ; rbx  - chosen element
+    ; rbx  - the element in question
     ; ymm0 - array of elements extended to the size of 32 with zeroes
-    ; ymm2 - array of 32 times repeated chosen element of source array
+    ; ymm2 - array of 32 times repeated element in question
+    ;  Note:
+    ; There is no instruction for comparing unsigned bytes in AVX2, so a vector
+    ; element-wise comparison "greater or equal" is constructed as follows:
+    ;  a >= b  <=>  b == min(a, b)
 
 _update_median:
-    vpminub     ymm3, ymm0, ymm2  ; compare for every byte if ymm0[i] > ymm2[i]
-    vpcmpeqb    ymm3, ymm3, ymm2
-    vpmovmskb   edx, ymm3         ; compress the mask above to rdx register
-    popcnt      edx, edx          ; count hom many elements of ymm0 are strictly bigger than chosen one
-    cmp         edx, 13           ; compare popcount and 12
-    jl          exit_f            ; if popcount > 12 then exit
-    cmp         rbx, rax          ; else (popcount <= 12) compare chosen element and earlier found one
-    jle         exit_f            ; if chosen element >= current then exit
-    mov         rax, rbx          ; else save chosen element as candidate to be median
+    vpminub     ymm3, ymm0, ymm2  ; ymm3[i] := min(ymm0[i], element in question)
+    vpcmpeqb    ymm3, ymm3, ymm2  ; bytewise comparing if min(ymm0[i], element in question) == element in question
+    vpmovmskb   edx, ymm3         ; compress the mask above to edx register
+    popcnt      edx, edx          ; count hom many elements of ymm0 are greater or equal than the element in question
+    cmp         edx, 13           ; compare popcount with 13
+    jl          exit_f            ; if popcount < 13 then exit
+    cmp         rbx, rax          ; else (popcount >= 13) compare the element in question with earlier found one
+    jle         exit_f            ; if element in question <= earlier found then exit
+    mov         rax, rbx          ; else save the element in questation as candidate to be median value
 exit_f:         ret
 
 _kernel:
-    ; prepare registers
 
+    ; prepare registers
     push        rbx               ; save rbx and rcx registers
     push        rcx
-    xor         rbx, rbx
+    xor         rbx, rbx          ; clean rbx and rax registers
     xor         rax, rax
     vpxor       ymm0, ymm0, ymm0  ; clean ymm0 and ymm1 registers
     vpxor       ymm1, ymm1, ymm1
@@ -151,5 +156,3 @@ _kernel:
     pop rcx
     pop rbx
     ret
-
-section .data
