@@ -27,7 +27,7 @@ public:
             }
         }
         sort(begin(v), end(v));
-        return v[(kernelSize * kernelSize + 1) / 2];
+        return v[kernelSize * kernelSize / 2];
     }
 
 };
