@@ -17,9 +17,10 @@ global _kernel
 _update_median:
     vpminub     ymm3, ymm0, ymm2  ; ymm3[i] := min(ymm0[i], element in question)
     vpcmpeqb    ymm3, ymm3, ymm2  ; bytewise comparing if min(ymm0[i], element in question) == element in question
-    vpmovmskb   edx, ymm3         ; compress the mask above to edx register
-    popcnt      edx, edx          ; count hom many elements of ymm0 are greater or equal than the element in question
-    cmp         edx, 13           ; compare popcount with 13
+    vpmovmskb   rdx, ymm3         ; compress the mask above to edx register
+    and         rdx, 0b11111111110111111111111111
+    popcnt      rdx, rdx          ; count hom many elements of ymm0 are greater or equal than the element in question
+    cmp         rdx, 13           ; compare popcount with 13
     jl          exit_f            ; if popcount < 13 then exit
     cmp         rbx, rax          ; else (popcount >= 13) compare the element in question with earlier found one
     jle         exit_f            ; if element in question <= earlier found then exit
@@ -38,23 +39,23 @@ _kernel:
 
     ; then let's load kernel matrix to ymm0:
 
-    pinsrq      xmm0, [rdi], 0    ; load the first line to xmm0[0-3, 12]
+    pinsrd      xmm0, [rdi], 0    ; load the first line to xmm0[0-3, 12]
     pinsrb      xmm0, [rdi+4], 12
 
     add         rdi, rsi          ; load the second line to xmm0[4-7, 13]
-    pinsrq      xmm0, [rdi], 1
+    pinsrd      xmm0, [rdi], 1
     pinsrb      xmm0, [rdi + 4], 13
 
     add         rdi, rsi          ; load the third line to xmm0[8-11, 14]
-    pinsrq      xmm0, [rdi], 2
+    pinsrd      xmm0, [rdi], 2
     pinsrb      xmm0, [rdi + 4], 14
 
     add         rdi, rsi          ; load the fourth line to xmm1[0-3, 8]
-    pinsrq      xmm1, [rdi], 0
+    pinsrd      xmm1, [rdi], 0
     pinsrb      xmm1, [rdi + 4], 8
 
     add         rdi, rsi          ; load the fifth line to xmm1[4-7, 9]
-    pinsrq      xmm1, [rdi], 1
+    pinsrd      xmm1, [rdi], 1
     pinsrb      xmm1, [rdi + 4], 9
 
     sub         rdi, rsi          ; restore kernel matrix address in rdi ( rdi -= 4 * rsi )
