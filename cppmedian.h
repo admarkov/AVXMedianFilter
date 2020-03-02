@@ -10,20 +10,20 @@ using std::vector;
 using std::sort;
 
 class CppMedianFilter : public Filter {
+    mutable vector<uchar> v;
+
 public:
     CppMedianFilter()
-        : Filter(5)
+        : Filter(5), v(5 * 5)
     {
-
     }
 
     ~CppMedianFilter() = default;
 
     uchar Apply(uchar* data, int width) const override {
-        vector<uchar> v;
         for (int i = 0; i < kernelSize; i++) {
             for (int j = 0; j < kernelSize; j++) {
-                v.push_back(*(data + i * width + j));
+                v[i*kernelSize + j] =  data[i * width + j];
             }
         }
         sort(begin(v), end(v));
