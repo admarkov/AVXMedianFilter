@@ -4,13 +4,13 @@ global _kernel
     ; _update_median function updates the estimated median value as stated below:
     ;  Statement:
     ; Median value of 25 elements is the maximal value such that
-    ; there is at least 13 greater or equal elements
+    ; there are at least 13 greater or equal elements
     ;  Input:
     ; rbx  - the element in question
     ; ymm0 - array of elements extended to the size of 32 with zeroes
-    ; ymm2 - array of 32 times repeated element in question
+    ; ymm2 - array of the element in question repeated 32 times
     ;  Note:
-    ; There is no instruction for comparing unsigned bytes in AVX2, so a vector
+    ; There is no instruction for comparing unsigned bytes in AVX2, so the vector
     ; element-wise comparison "greater or equal" is constructed as follows:
     ;  a >= b  <=>  b == min(a, b)
 
@@ -19,12 +19,12 @@ _update_median:
     vpcmpeqb    ymm3, ymm3, ymm2  ; bytewise comparing if min(ymm0[i], element in question) == element in question
     vpmovmskb   rdx, ymm3         ; compress the mask above to edx register
     and         rdx, 0b11111111110111111111111111
-    popcnt      rdx, rdx          ; count hom many elements of ymm0 are greater or equal than the element in question
+    popcnt      rdx, rdx          ; count how many elements of ymm0 are greater or equal than the element in question
     cmp         rdx, 13           ; compare popcount with 13
     jl          exit_f            ; if popcount < 13 then exit
-    cmp         rbx, rax          ; else (popcount >= 13) compare the element in question with earlier found one
-    jle         exit_f            ; if element in question <= earlier found then exit
-    mov         rax, rbx          ; else save the element in questation as candidate to be median value
+    cmp         rbx, rax          ; else (popcount >= 13) compare the element in question with previously found one
+    jle         exit_f            ; if element in question <= previously found then exit
+    mov         rax, rbx          ; else save the element in question as relevant option for median value
 exit_f:         ret
 
 _kernel:
@@ -63,7 +63,7 @@ _kernel:
     sub         rdi, rsi
     sub         rdi, rsi
 
-    vinserti128 ymm0, ymm0, xmm1, 1     ; merge xmm0 and xmm1 to ymm0 = [xmm1:xmm0]
+    vinserti128 ymm0, ymm0, xmm1, 1     ; merge xmm0 and xmm1 into ymm0 = [xmm1:xmm0]
 
     ; now let's iterate over 5x5 kernel and find median value
     ; (the code below is unrolled loop)
