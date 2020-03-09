@@ -65,12 +65,12 @@ _kernel:
 
     vinserti128 ymm0, ymm0, xmm1, 1     ; merge xmm0 and xmm1 into ymm0 = [xmm1:xmm0]
 
-    ; now let's iterate over 5x5 kernel and find median value
+    ; now let's iterate over 5x5 kernel and find the median value
     ; (the code below is unrolled loop)
 
     mov             bl, byte[rdi]       ; load currently selected element of matrix to rbx
     vpbroadcastb    ymm2, byte[rdi]     ; load it to ymm2 repeated 32 times
-    call            _update_median      ; call median value update function
+    call            _update_median      ; call the median value update function
     mov             bl, byte[rdi + 1]   ; and so on...
     vpbroadcastb    ymm2, byte[rdi + 1]
     call            _update_median
